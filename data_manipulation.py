@@ -129,7 +129,7 @@ def get_titles(titanic_data):
 
 def process_age(titanic_data):
      # a function that fills the missing values of the Age variable
-    titanic_data['Age'] = titanic_data['Age'].fillna(titanic_data['Age'].median())
+    titanic_data["Age"] = titanic_data.groupby(['Sex','Pclass','Title'])['Age'].transform(lambda x: x.fillna(x.median()))
 
     status('age')
 
