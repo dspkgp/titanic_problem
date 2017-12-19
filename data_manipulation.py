@@ -1,4 +1,3 @@
-import warnings
 import pandas as pd
 import matplotlib
 import numpy as np
@@ -6,7 +5,7 @@ import os
 import matplotlib.pyplot as plt
 
 # reading data from the datasets
-from read_data import read_training_data, read_test_data, read_gender_data
+from read_data import read_training_data, read_test_data
 
 pd.options.display.max_columns = 100
 matplotlib.style.use('ggplot')
@@ -37,7 +36,7 @@ plt.close()
 
 figure = plt.figure(figsize=(13,8))
 plt.hist([data[data['Survived']==1]['Age'],data[data['Survived']==0]['Age']], stacked=True, color = ['g','r'],
-	bins = 30,label = ['Survived','Dead'])
+    bins = 30,label = ['Survived','Dead'])
 plt.xlabel('Age')
 plt.ylabel('Number of passengers')
 plt.legend()
@@ -46,7 +45,7 @@ plt.close()
 
 figure = plt.figure(figsize=(13,8))
 plt.hist([data[data['Survived']==1]['Fare'],data[data['Survived']==0]['Fare']], stacked=True,color = ['g','r'],
-	bins = 30,label = ['Survived','Dead'])
+    bins = 30,label = ['Survived','Dead'])
 plt.xlabel('Fare')
 plt.ylabel('Number of passengers')
 plt.legend()
@@ -76,136 +75,81 @@ df.index = ['Survived','Dead']
 df.plot(kind='bar',stacked=True, figsize=(13,8))
 plt.close()
 
-# import ipdb; ipdb.set_trace()
 def status(feature):
-	print 'Processing', feature, ': done'
+    print 'Processing', feature, ': done'
 # print function that assert whether or not a feature has been processed
 
 # Loading the data
-def get_combined_data():
-	# reading train data
-	train = read_training_data()
-	# reading test data
-	test = read_test_data()
-	# import ipdb; ipdb.set_trace()
-	# extracting and then removing the targets from the training data 
-	targets = train.Survived
-	train.drop('Survived',1,inplace=True)
-	# merging train data and test data for future feature engineering
-	combined = train.append(test)
-	combined.reset_index(inplace=True)
-	combined.drop('index',inplace=True,axis=1)
-	
-	return combined
+def get_titanic_data():
+    # reading train data
+    train = read_training_data()
+    # reading test data
+    test = read_test_data()
+    # import ipdb; ipdb.set_trace()
+    # extracting and then removing the targets from the training data
+    targets = train.Survived
+    train.drop('Survived',1,inplace=True)
+    # merging train data and test data for future feature engineering
+    # import ipdb; ipdb.set_trace()
+    titanic_data = train.append(test)
+    titanic_data.reset_index(inplace=True)
+    titanic_data.drop('index',inplace=True,axis=1)
 
-def get_titles(combined):
+    return titanic_data
 
-	# global combined
-	# we extract the title from each name
-	combined['Title'] = combined['Name'].map(lambda name:name.split(',')[1].split('.')[0].strip())	
-	# a map of more aggregated titles
-	Title_Dictionary = {
-	"Capt":       "Officer",
-	"Col":        "Officer",
-	"Major":      "Officer",
-	"Jonkheer":   "Royalty",
-	"Don":        "Royalty",
-	"Sir" :       "Royalty",
-	"Dr":         "Officer",
-	"Rev":        "Officer",
-	"the Countess":"Royalty",
-	"Dona":       "Royalty",
-	"Mme":        "Mrs",
-	"Mlle":       "Miss",
-	"Ms":         "Mrs",
-	"Mr" :        "Mr",
-	"Mrs" :       "Mrs",
-	"Miss" :      "Miss",
-	"Master" :    "Master",
-	"Lady" :      "Royalty"
 
-	}	
-	# we map each title
-	combined['Title'] = combined.Title.map(Title_Dictionary)
+def get_titles(titanic_data):
+    # we extract the title from each name
+    titanic_data['Title'] = titanic_data['Name'].map(lambda name:name.split(',')[1].split('.')[0].strip())
+    # a map of more aggregated titles
+    Title_Dictionary = {
+    "Capt":       "Officer",
+    "Col":        "Officer",
+    "Major":      "Officer",
+    "Jonkheer":   "Royalty",
+    "Don":        "Royalty",
+    "Sir" :       "Royalty",
+    "Dr":         "Officer",
+    "Rev":        "Officer",
+    "the Countess":"Royalty",
+    "Dona":       "Royalty",
+    "Mme":        "Mrs",
+    "Mlle":       "Miss",
+    "Ms":         "Mrs",
+    "Mr" :        "Mr",
+    "Mrs" :       "Mrs",
+    "Miss" :      "Miss",
+    "Master" :    "Master",
+    "Lady" :      "Royalty"
 
-	return combined
+    }
+    # we map each title
+    titanic_data['Title'] = titanic_data.Title.map(Title_Dictionary)
 
-def process_age(combined):
-	# global combined
-	 # a function that fills the missing values of the Age variable
+    return titanic_data
 
-	def fillAges(row):
-		# alternative of the below method
-		# combined["Age"] = combined.groupby(['Sex','Pclass','Title'])['Age'].transform(lambda x: x.fillna(x.median()))
-		if row['Sex']=='female' and row['Pclass'] == 1:
-			if row['Title'] == 'Miss':
-				return 30
-			elif row['Title'] == 'Mrs':
-				return 45
-			elif row['Title'] == 'Officer':
-				return 49
-			elif row['Title'] == 'Royalty':
-				return 39
+def process_age(titanic_data):
+     # a function that fills the missing values of the Age variable
+    titanic_data['Age'] = titanic_data['Age'].fillna(titanic_data['Age'].median())
 
-			elif row['Sex']=='female' and row['Pclass'] == 2:
-				if row['Title'] == 'Miss':
-					return 20
-				elif row['Title'] == 'Mrs':
-					return 30
+    status('age')
 
-				elif row['Sex']=='female' and row['Pclass'] == 3:
-					if row['Title'] == 'Miss':
-						return 18
-					elif row['Title'] == 'Mrs':
-						return 31
+    return titanic_data
 
-					elif row['Sex']=='male' and row['Pclass'] == 1:
-						if row['Title'] == 'Master':
-							return 6
-						elif row['Title'] == 'Mr':
-							return 41.5
-						elif row['Title'] == 'Officer':
-							return 52
-						elif row['Title'] == 'Royalty':
-							return 40
-
-						elif row['Sex']=='male' and row['Pclass'] == 2:
-							if row['Title'] == 'Master':
-								return 2
-							elif row['Title'] == 'Mr':
-								return 30
-							elif row['Title'] == 'Officer':
-								return 41.5
-
-							elif row['Sex']=='male' and row['Pclass'] == 3:
-								if row['Title'] == 'Master':
-									return 6
-								elif row['Title'] == 'Mr':
-									return 26
-
-	combined.Age = combined.apply(lambda r : fillAges(r) if np.isnan(r['Age']) else r['Age'], axis=1)
-	status('age')
-
-	return combined
-
-def process_family(combined):    
-    # global combined
-    
+def process_family(titanic_data):
     # introducing a new feature : the size of families (including the passenger)
-    combined['FamilySize'] = combined['Parch'] + combined['SibSp'] + 1   
+    titanic_data['FamilySize'] = titanic_data['Parch'] + titanic_data['SibSp'] + 1
     # introducing other features based on the family size
-    combined['Singleton'] = combined['FamilySize'].map(lambda s : 1 if s == 1 else 0)
-    combined['SmallFamily'] = combined['FamilySize'].map(lambda s : 1 if 2<=s<=4 else 0)
-    combined['LargeFamily'] = combined['FamilySize'].map(lambda s : 1 if 5<=s else 0)    
+    titanic_data['Singleton'] = titanic_data['FamilySize'].map(lambda s : 1 if s == 1 else 0)
+    titanic_data['SmallFamily'] = titanic_data['FamilySize'].map(lambda s : 1 if 2<=s<=4 else 0)
+    titanic_data['LargeFamily'] = titanic_data['FamilySize'].map(lambda s : 1 if 5<=s else 0)
     status('family')
 
-    return combined
+    return titanic_data
 
-def process_ticket(combined):  
-
-    # global combined
+def process_ticket(titanic_data):
     # a function that extracts each prefix of the ticket, returns 'XXX' if no prefix (i.e the ticket is a digit)
-    def cleanTicket(ticket):  
+    def cleanTicket(ticket):
         ticket = ticket.replace('.','')
         ticket = ticket.replace('/','')
         ticket = ticket.split()
@@ -213,105 +157,95 @@ def process_ticket(combined):
         ticket = filter(lambda t : not t.isdigit(), ticket)
         if len(ticket) > 0:
             return ticket[0]
-        else: 
+        else:
             return 'XXX'
-    combined['Ticket'] = combined['Ticket'].map(cleanTicket)
-    tickets_dummies = pd.get_dummies(combined['Ticket'],prefix='Ticket')
-    combined = pd.concat([combined, tickets_dummies],axis=1)
-    combined.drop('Ticket',inplace=True,axis=1)
+    titanic_data['Ticket'] = titanic_data['Ticket'].map(cleanTicket)
+    tickets_dummies = pd.get_dummies(titanic_data['Ticket'],prefix='Ticket')
+    titanic_data = pd.concat([titanic_data, tickets_dummies],axis=1)
+    titanic_data.drop('Ticket',inplace=True,axis=1)
 
     status('ticket')
 
-    return combined
+    return titanic_data
 
-
-def process_pclass(combined):
-    # global combined
-    # encoding into 3 categories:  
-    pclass_dummies = pd.get_dummies(combined['Pclass'],prefix="Pclass") 
+def process_pclass(titanic_data):
+    # encoding into 3 categories:
+    pclass_dummies = pd.get_dummies(titanic_data['Pclass'],prefix="Pclass")
     # adding dummy variables
-    combined = pd.concat([combined,pclass_dummies],axis=1)   
-    # removing "Pclass"    
-    combined.drop('Pclass',axis=1,inplace=True)
+    titanic_data = pd.concat([titanic_data,pclass_dummies],axis=1)
+    # removing "Pclass"
+    titanic_data.drop('Pclass',axis=1,inplace=True)
     status('pclass')
 
-    return combined
+    return titanic_data
 
-
-def process_sex(combined):   
-    # global combined
-    # mapping string values to numerical one 
-    combined['Sex'] = combined['Sex'].map({'male':1,'female':0})
+def process_sex(titanic_data):
+    # mapping string values to numerical one
+    titanic_data['Sex'] = titanic_data['Sex'].map({'male':1,'female':0})
     status('sex')
 
-    return combined
+    return titanic_data
 
-
-def process_cabin(combined):
-    # global combined
+def process_cabin(titanic_data):
     # replacing missing cabins with U (for Unknown)
-    combined.Cabin.fillna('U',inplace=True)
+    titanic_data.Cabin.fillna('U',inplace=True)
     # mapping each Cabin value with the cabin letter
-    combined['Cabin'] = combined['Cabin'].map(lambda c : c[0])
+    titanic_data['Cabin'] = titanic_data['Cabin'].map(lambda c : c[0])
     # dummy encoding
-    cabin_dummies = pd.get_dummies(combined['Cabin'],prefix='Cabin')
-    combined = pd.concat([combined,cabin_dummies],axis=1)
-    combined.drop('Cabin',axis=1,inplace=True)
+    cabin_dummies = pd.get_dummies(titanic_data['Cabin'],prefix='Cabin')
+    titanic_data = pd.concat([titanic_data,cabin_dummies],axis=1)
+    titanic_data.drop('Cabin',axis=1,inplace=True)
     status('cabin')
 
-    return combined
+    return titanic_data
 
-def process_embarked(combined):
-    # global combined
+def process_embarked(titanic_data):
     # two missing embarked values - filling them with the most frequent one (S)
-    combined.Embarked.fillna('S',inplace=True)
-    # dummy encoding 
-    embarked_dummies = pd.get_dummies(combined['Embarked'],prefix='Embarked')
-    combined = pd.concat([combined,embarked_dummies],axis=1)
-    combined.drop('Embarked',axis=1,inplace=True)
-    
-    status('embarked')	
-    return combined		
+    titanic_data.Embarked.fillna('S',inplace=True)
+    # dummy encoding
+    embarked_dummies = pd.get_dummies(titanic_data['Embarked'],prefix='Embarked')
+    titanic_data = pd.concat([titanic_data,embarked_dummies],axis=1)
+    titanic_data.drop('Embarked',axis=1,inplace=True)
 
- 
-def process_name(combined):
-	# global combined
-	# cleaning the name variable
-	combined.drop('Name',inplace=True,axis=1)
-	# encoding in dummy variable
-	titles_dummies = pd.get_dummies(combined['Title'],prefix='Title')
-	combined = pd.concat([combined,titles_dummies],axis=1)
-	# removing the title variables
-	combined.drop('Title',axis=1,inplace=True)
-	status('names')
-	return combined
+    status('embarked')
 
-def process_fares(combined):
-	# global combined
-	combined.Fare.fillna(combined.Fare.mean(),inplace=True)
-	status('fare')
-	return combined
+    return titanic_data
 
+def process_name(titanic_data):
+    # cleaning the name variable
+    titanic_data.drop('Name',inplace=True,axis=1)
+    # encoding in dummy variable
+    titles_dummies = pd.get_dummies(titanic_data['Title'],prefix='Title')
+    titanic_data = pd.concat([titanic_data,titles_dummies],axis=1)
+    # removing the title variables
+    titanic_data.drop('Title',axis=1,inplace=True)
+    status('names')
+
+    return titanic_data
+
+def process_fares(titanic_data):
+    titanic_data.Fare.fillna(titanic_data.Fare.mean(),inplace=True)
+    status('fare')
+
+    return titanic_data
 
 if __name__ == "__main__":
-	combined = get_combined_data()
-	combined = get_titles(combined)
+    titanic_data = get_titanic_data()
+    titanic_data = get_titles(titanic_data)
 
-	grouped = combined.groupby(['Sex','Pclass','Title'])
-	grouped.median()
-
-	combined = process_age(combined)
-	combined = process_family(combined)
-	combined = process_ticket(combined)
-	combined = process_pclass(combined)
-	combined = process_sex(combined)
-	combined = process_cabin(combined)
-	combined = process_embarked(combined)
-	combined = process_name(combined)
-	combined = process_fares(combined)
-	combined.info()
-	
-
-
+    grouped = titanic_data.groupby(['Sex','Pclass','Title'])
+    grouped.median()
+    import ipdb;ipdb.set_trace()
+    titanic_data = process_age(titanic_data)
+    titanic_data = process_family(titanic_data)
+    titanic_data = process_ticket(titanic_data)
+    titanic_data = process_pclass(titanic_data)
+    titanic_data = process_sex(titanic_data)
+    titanic_data = process_cabin(titanic_data)
+    titanic_data = process_embarked(titanic_data)
+    titanic_data = process_name(titanic_data)
+    titanic_data = process_fares(titanic_data)
+    titanic_data.info()
+    print(titanic_data.head())
 
 	
