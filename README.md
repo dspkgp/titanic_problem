@@ -13,3 +13,10 @@ Feature engineering
 Modeling
 
 Modelfine-tuning
+
+# The main libraries involved in this tutorial are:
+
+Pandas for data manipulation
+Matplotlib for data visualization
+Numpy for multidimensional array computing
+sklearn for machine learning and predictive modeling
