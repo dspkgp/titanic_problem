@@ -4,7 +4,7 @@ The Titanic challenge on Kaggle is a competition in which the task is to predict
 
 Solution goes through the basic steps of a data science pipeline:
 
-Exploratory data analysis with visualizations
+#Exploratory data analysis with visualizations
 
 Data cleaning
 
@@ -14,9 +14,12 @@ Modeling
 
 Modelfine-tuning
 
-The main libraries involved are:
+#The main libraries involved are:
 
 Pandas for data manipulation
+
 Matplotlib for data visualization
+
 Numpy for multidimensional array computing
+
 sklearn for machine learning and predictive modeling
