@@ -230,11 +230,12 @@ def process_fares(titanic_data):
 
 if __name__ == "__main__":
     titanic_data = get_titanic_data()
+    import ipdb;ipdb.set_trace()
     titanic_data = get_titles(titanic_data)
 
     grouped = titanic_data.groupby(['Sex','Pclass','Title'])
     grouped.median()
-    import ipdb;ipdb.set_trace()
+    
     titanic_data = process_age(titanic_data)
     titanic_data = process_family(titanic_data)
     titanic_data = process_ticket(titanic_data)
