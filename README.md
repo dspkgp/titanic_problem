@@ -14,7 +14,7 @@ Modeling
 
 Modelfine-tuning
 
-# The main libraries involved in this tutorial are:
+The main libraries involved are:
 
 Pandas for data manipulation
 Matplotlib for data visualization
