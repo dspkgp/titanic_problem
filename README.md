@@ -4,8 +4,12 @@ The Titanic challenge on Kaggle is a competition in which the task is to predict
 
 Solution goes through the basic steps of a data science pipeline:
 
-#Exploratory data analysis with visualizations
-#Data cleaning
-#Feature engineering
-#Modeling
-#Modelfine-tuning
+Exploratory data analysis with visualizations
+
+Data cleaning
+
+Feature engineering
+
+Modeling
+
+Modelfine-tuning
