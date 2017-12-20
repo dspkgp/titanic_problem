@@ -75,7 +75,7 @@ df.plot(kind='bar',stacked=True, figsize=(13,8))
 plt.close()
 
 def status(feature):
-    print 'Processing', feature, ': done'
+    print('Processing', feature, ': done')
 # print function that assert whether or not a feature has been processed
 
 # Loading the data
@@ -153,7 +153,7 @@ def process_ticket(titanic_data):
         ticket = ticket.replace('/','')
         ticket = ticket.split()
         ticket = map(lambda t : t.strip() , ticket)
-        ticket = filter(lambda t : not t.isdigit(), ticket)
+        ticket = list(filter(lambda t : not t.isdigit(), ticket))
         if len(ticket) > 0:
             return ticket[0]
         else:
